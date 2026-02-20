@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 // API proxy forwards /api to backend at 3010.
 export default defineConfig({
   plugins: [react()],
+  base: '/git-clone-backend/',
   server: {
     port: 5190,
     strictPort: false,
