@@ -2,30 +2,21 @@ import { Outlet } from 'react-router-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
-import { GitPullRequest, FileText, Moon, Sun, Bell, LogOut, ClipboardList, Settings } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import api from '../lib/api';
-import type { Notification } from '../types';
+import { GitPullRequest, FileText, Moon, Sun, LogOut, ClipboardList, Settings, Code2 } from 'lucide-react';
+import { RealTimeNotifications } from './RealTimeNotifications';
 import clsx from 'clsx';
 
 export default function Layout() {
   const location = useLocation();
   const { user, logout } = useAuthStore();
   const { theme, toggle } = useThemeStore();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [showNotif, setShowNotif] = useState(false);
-
-  useEffect(() => {
-    api.get<{ data: Notification[] }>('/notifications?limit=10').then((r) => setNotifications(r.data.data)).catch(() => {});
-  }, [location.pathname]);
-
-  const unread = notifications.filter((n) => !n.read).length;
 
   const nav = [
     { to: '/pull-requests', label: 'Pull requests', icon: GitPullRequest },
     { to: '/assigned-reviews', label: 'Assigned reviews', icon: ClipboardList },
+    { to: '/playground', label: 'Code Playground', icon: Code2 },
     ...(user?.role === 'ADMIN' || user?.role === 'RELEASE_MANAGER' ? [{ to: '/audit-logs', label: 'Audit logs', icon: FileText }] : []),
-    { to: '/notifications', label: 'Notifications', icon: Bell },
+    { to: '/notifications', label: 'Notifications', icon: Settings },
     { to: '/settings', label: 'Settings', icon: Settings },
   ];
 
@@ -75,20 +66,7 @@ export default function Layout() {
           >
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
-          <div className="relative">
-            <Link
-              to="/notifications"
-              className="relative flex rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              {unread > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                  {unread > 9 ? '9+' : unread}
-                </span>
-              )}
-            </Link>
-          </div>
+          <RealTimeNotifications />
           <button
             type="button"
             onClick={logout}

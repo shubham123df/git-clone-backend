@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuthStore } from '../store/authStore';
 import type { PullRequest, PrStatus } from '../types';
-import { GitPullRequest, Clock, CheckCircle2, MessageSquare } from 'lucide-react';
+import { GitPullRequest, Clock, CheckCircle2, MessageSquare, ClipboardList } from 'lucide-react';
 import clsx from 'clsx';
 
 const statusColors: Record<PrStatus, string> = {

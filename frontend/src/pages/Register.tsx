@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
-import { useAuthStore } from '../store/authStore';
 import { getApiErrorMessage } from '../lib/errorMessage';
+import { useAuthStore } from '../store/authStore';
 import { GitPullRequest } from 'lucide-react';
 
 export default function Register() {
@@ -19,12 +19,15 @@ export default function Register() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<{ user: unknown; accessToken: string; refreshToken: string }>('/auth/register', {
+      // Real API call to backend
+      const { data } = await api.post('/auth/register', {
         email,
         password,
-        name: name || undefined,
+        name,
       });
-      setAuth(data.user as any, data.accessToken, data.refreshToken);
+
+      // Save auth with real tokens
+      setAuth(data.user, data.accessToken, data.refreshToken);
       navigate('/pull-requests', { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err, 'Registration failed'));

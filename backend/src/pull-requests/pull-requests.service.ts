@@ -36,6 +36,10 @@ export class PullRequestsService {
       },
       include: { author: { include: { role: true } }, reviewers: { include: { user: true } } },
     });
+
+    // Send notifications to managers about new PR
+    await this.notifications.notifyPullRequestCreated(pr.id, authorId, pr.title);
+
     await this.auditLog.log({
       entityType: 'pull_request',
       entityId: pr.id,
@@ -134,6 +138,10 @@ export class PullRequestsService {
       data: { status, version: pr.version + 1 },
       include: { author: true, reviewers: { include: { user: true } } },
     });
+
+    // Send notifications about status change
+    await this.notifications.notifyPullRequestUpdated(id, userId, pr.title, status);
+
     await this.auditLog.log({
       entityType: 'pull_request',
       entityId: id,
