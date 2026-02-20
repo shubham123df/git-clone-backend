@@ -33,7 +33,7 @@ buildCommand: |
   npx prisma generate
   npm run build
     preDeployCommand: cd backend && npx prisma migrate deploy && npm run seed
-    startCommand: cd backend && node dist/main.js
+    startCommand: cd backend && node dist/src/main.js
 
     healthCheckPath: /api/v1/health
 
