@@ -22,9 +22,16 @@ services:
     runtime: node
     plan: free
     region: oregon
-
-    buildCommand: |
-      cd frontend && npm ci && npm run build && mkdir -p ../backend/public && cp -r dist/* ../backend/public/ && cd ../backend && npm ci && npx prisma generate && npm run build
+buildCommand: |
+  cd frontend
+  npm ci
+  npm run build
+  mkdir -p ../backend/public
+  cp -r dist/* ../backend/public/
+  cd ../backend
+  npm ci
+  npx prisma generate
+  npm run build
     preDeployCommand: cd backend && npx prisma migrate deploy && npm run seed
     startCommand: cd backend && node dist/main.js
 
