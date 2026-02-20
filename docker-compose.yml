@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: prreview
+      POSTGRES_PASSWORD: prreview_secret
+      POSTGRES_DB: pr_review
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prreview -d pr_review"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6381:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://prreview:prreview_secret@postgres:5432/pr_review?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-in-production-min-32-chars}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-min-32-chars}
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data: {}
